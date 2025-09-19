@@ -1,6 +1,6 @@
-from models import OrdemServicoFinanceiro
+from models import OrdemServicoServicos
 from database import Base, engine
 
 # Cria a tabela (somente se não existir)
 Base.metadata.create_all(bind=engine)
-print("✅ Tabela ordens_servico_financeiro criada (ou já existia)")
+print("✅ Tabela tabela-os-servico criada (ou já existia)")
