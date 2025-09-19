@@ -1,7 +1,6 @@
 from database import SessionLocal
 from models import OrdemServicoServicos
 from datetime import datetime
-import json
 import os
 import io
 import csv
@@ -254,7 +253,7 @@ def montar_blocos_exportacao_servicos():
             "element": {
                 "type": "static_select",
                 "action_id": "value",
-                "placeholder": {"type": "plain_text", "text": "Escolha"},
+                "placeholder": {"type": "plain_text", "text": "Escolha o formato"},
                 "options": [
                     {"text": {"type": "plain_text", "text": "PDF"}, "value": "pdf"},
                     {"text": {"type": "plain_text", "text": "CSV"}, "value": "csv"},
