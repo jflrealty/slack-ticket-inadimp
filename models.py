@@ -1,9 +1,9 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float, Text
+from sqlalchemy import Column, Integer, String, DateTime
 from database import Base
 from datetime import datetime
 
 class OrdemServicoServicos(Base):
-    __tablename__ = "tabela-os-servico"  # nome exato da sua tabela
+    __tablename__ = "tabela-os-servico"  # nome exato da tabela criada no Railway
 
     id = Column(Integer, primary_key=True, index=True)
     tipo_ticket = Column(String, nullable=False)
