@@ -7,7 +7,7 @@ import os
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Conexão
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=False)
 
 # Base para os models
 Base = declarative_base()
