@@ -9,14 +9,6 @@ from services import (
     montar_blocos_modal_servicos,
     criar_ordem_servico_servicos,
     formatar_mensagem_chamado_servicos,
-    capturar_chamado,
-    finalizar_chamado,
-    abrir_modal_reabertura,
-    abrir_modal_edicao,
-    abrir_modal_cancelamento,
-    reabrir_chamado,
-    cancelar_chamado,
-    editar_chamado,
     listar_chamados_por_usuario_servicos,
     montar_blocos_exportacao_servicos,
     exportar_chamados_servicos
@@ -58,7 +50,7 @@ def handle_chamado_servicos_command(ack, body, client, logger):
 def handle_modal_submission_servicos(ack, body, view, client):
     ack()
     user = body["user"]["id"]
-    canal_id = os.getenv("SLACK_CANAL_ID_SERVICOS", "CXXXXXXX")  # define o canal certo
+    canal_id = os.getenv("SLACK_CANAL_ID_SERVICOS", "CXXXXXXX")  # ⚠️ Trocar pelo canal real
     valores = view["state"]["values"]
 
     def pegar_valor(campo):
@@ -78,22 +70,7 @@ def handle_modal_submission_servicos(ack, body, view, client):
 
     response = client.chat_postMessage(
         channel=canal_id,
-        text=f"🧾 ({data['locatario']}) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*",
-        blocks=[
-            {
-                "type": "section",
-                "text": {"type": "mrkdwn", "text": f"🧾 (*{data['locatario']}*) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*"}
-            },
-            {
-                "type": "actions",
-                "elements": [
-                    {"type": "button", "text": {"type": "plain_text", "text": "🔄 Capturar"}, "action_id": "capturar_chamado"},
-                    {"type": "button", "text": {"type": "plain_text", "text": "✅ Finalizar"}, "action_id": "finalizar_chamado"},
-                    {"type": "button", "text": {"type": "plain_text", "text": "♻️ Reabrir"}, "action_id": "reabrir_chamado"},
-                    {"type": "button", "text": {"type": "plain_text", "text": "❌ Cancelar"}, "action_id": "cancelar_chamado"}
-                ]
-            }
-        ]
+        text=f"🧾 ({data['locatario']}) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*"
     )
 
     thread_ts = response["ts"]
@@ -104,47 +81,6 @@ def handle_modal_submission_servicos(ack, body, view, client):
         thread_ts=thread_ts,
         text=formatar_mensagem_chamado_servicos(data, user)
     )
-
-# 🔘 AÇÕES DE BOTÕES (compartilhados)
-@app.action("capturar_chamado")
-def handle_capturar(ack, body, client):
-    ack()
-    capturar_chamado(client, body)
-
-@app.action("finalizar_chamado")
-def handle_finalizar(ack, body, client):
-    ack()
-    finalizar_chamado(client, body)
-
-@app.action("reabrir_chamado")
-def handle_reabrir(ack, body, client):
-    ack()
-    abrir_modal_reabertura(client, body)
-
-@app.view("reabrir_chamado_modal")
-def handle_reabrir_submit(ack, body, view, client):
-    ack()
-    reabrir_chamado(client, body, view)
-
-@app.action("editar_chamado")
-def handle_editar(ack, body, client):
-    ack()
-    abrir_modal_edicao(client, body["trigger_id"], body["message"]["ts"])
-
-@app.action("cancelar_chamado")
-def handle_cancelar(ack, body, client):
-    ack()
-    abrir_modal_cancelamento(client, body)
-
-@app.view("cancelar_chamado_modal")
-def handle_cancelar_submit(ack, body, view, client):
-    ack()
-    cancelar_chamado(client, body, view)
-
-@app.view("editar_chamado_modal")
-def handle_editar_submit(ack, body, view, client):
-    ack()
-    editar_chamado(client, body, view)
 
 # 📌 Listar chamados do usuário
 @app.command("/minhas-os-servicos")
