@@ -1,15 +1,14 @@
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_sdk import WebClient
-from dotenv import load_dotenv
 import os
 from datetime import datetime
 
 from create_tables import *
 from services import (
-    montar_blocos_modal_financeiro,
-    criar_ordem_servico_financeiro,
-    formatar_mensagem_chamado_financeiro,
+    montar_blocos_modal_servicos,
+    criar_ordem_servico_servicos,
+    formatar_mensagem_chamado_servicos,
     capturar_chamado,
     finalizar_chamado,
     abrir_modal_reabertura,
@@ -17,48 +16,49 @@ from services import (
     abrir_modal_cancelamento,
     reabrir_chamado,
     cancelar_chamado,
-    editar_chamado
+    editar_chamado,
+    listar_chamados_por_usuario_servicos,
+    montar_blocos_exportacao_servicos,
+    exportar_chamados_servicos
 )
 
-load_dotenv()
-
+# Inicializa o app com tokens do Railway (env vars)
 app = App(token=os.getenv("SLACK_BOT_TOKEN"))
 client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
 
-# 📌 Abrir modal
-@app.command("/financeiro-os")
-def handle_chamado_financeiro_command(ack, body, client, logger):
-    ack()  # ⚡️ Ack IMEDIATO
+# 📌 Abrir modal de Serviços
+@app.command("/chamado-servicos")
+def handle_chamado_servicos_command(ack, body, client, logger):
+    ack()
 
     try:
-        # 💡 Montar blocos depois do ack, pois é leve
-        blocks = montar_blocos_modal_financeiro()
+        blocks = montar_blocos_modal_servicos()
 
         client.views_open(
             trigger_id=body["trigger_id"],
             view={
                 "type": "modal",
-                "callback_id": "modal_abertura_chamado_financeiro",
-                "title": {"type": "plain_text", "text": "Chamado Financeiro"},
+                "callback_id": "modal_abertura_chamado_servicos",
+                "title": {"type": "plain_text", "text": "Chamado - Serviços"},
                 "submit": {"type": "plain_text", "text": "Abrir"},
                 "blocks": blocks
             }
         )
 
     except Exception as e:
-        logger.error(f"❌ Erro ao abrir modal financeiro: {e}")
+        logger.error(f"❌ Erro ao abrir modal serviços: {e}")
         client.chat_postEphemeral(
-            channel=body.get("channel_id", os.getenv("SLACK_CANAL_ID", "#financeiro-comercial")),
+            channel=body.get("channel_id"),
             user=body["user_id"],
             text="❌ Ocorreu um erro ao abrir o formulário. Tente novamente."
         )
 
 # 📌 Submissão do modal
-@app.view("modal_abertura_chamado_financeiro")
-def handle_modal_submission(ack, body, view, client):
+@app.view("modal_abertura_chamado_servicos")
+def handle_modal_submission_servicos(ack, body, view, client):
     ack()
     user = body["user"]["id"]
-    canal_id = os.getenv("SLACK_CANAL_ID", "C08KMCDNEFR")
+    canal_id = os.getenv("SLACK_CANAL_ID_SERVICOS", "CXXXXXXX")  # define o canal certo
     valores = view["state"]["values"]
 
     def pegar_valor(campo):
@@ -70,10 +70,8 @@ def handle_modal_submission(ack, body, view, client):
 
     data = {
         "tipo_ticket": pegar_valor("tipo_ticket"),
-        "tipo_contrato": pegar_valor("tipo_contrato"),
         "locatario": pegar_valor("locatario"),
         "empreendimento_unidade": pegar_valor("empreendimento_unidade"),
-        "numero_reserva": pegar_valor("numero_reserva"),
         "responsavel": pegar_valor("responsavel"),
         "solicitante": user
     }
@@ -93,22 +91,21 @@ def handle_modal_submission(ack, body, view, client):
                     {"type": "button", "text": {"type": "plain_text", "text": "✅ Finalizar"}, "action_id": "finalizar_chamado"},
                     {"type": "button", "text": {"type": "plain_text", "text": "♻️ Reabrir"}, "action_id": "reabrir_chamado"},
                     {"type": "button", "text": {"type": "plain_text", "text": "❌ Cancelar"}, "action_id": "cancelar_chamado"}
-                    # {"type": "button", "text": {"type": "plain_text", "text": "✏️ Editar"}, "action_id": "editar_chamado"}
                 ]
             }
         ]
     )
 
     thread_ts = response["ts"]
-    criar_ordem_servico_financeiro(data, thread_ts, canal_id)
+    criar_ordem_servico_servicos(data, thread_ts, canal_id)
 
     client.chat_postMessage(
         channel=canal_id,
         thread_ts=thread_ts,
-        text=formatar_mensagem_chamado_financeiro(data, user)
+        text=formatar_mensagem_chamado_servicos(data, user)
     )
 
-# 🔘 AÇÕES DE BOTÕES
+# 🔘 AÇÕES DE BOTÕES (compartilhados)
 @app.action("capturar_chamado")
 def handle_capturar(ack, body, client):
     ack()
@@ -149,13 +146,13 @@ def handle_editar_submit(ack, body, view, client):
     ack()
     editar_chamado(client, body, view)
 
-@app.command("/minhas-os-financeiro")
-def handle_meus_chamados(ack, body, client):
+# 📌 Listar chamados do usuário
+@app.command("/minhas-os-servicos")
+def handle_meus_chamados_servicos(ack, body, client):
     ack()
     user_id = body["user_id"]
 
-    from services import listar_chamados_por_usuario
-    chamados = listar_chamados_por_usuario(user_id)
+    chamados = listar_chamados_por_usuario_servicos(user_id)
 
     response = client.conversations_open(users=user_id)
     channel_id = response["channel"]["id"]
@@ -164,11 +161,11 @@ def handle_meus_chamados(ack, body, client):
         client.chat_postEphemeral(
             channel=channel_id,
             user=user_id,
-            text="❗ Você ainda não abriu nenhum chamado financeiro."
+            text="❗ Você ainda não abriu nenhum chamado de serviços."
         )
         return
 
-    mensagem = "*📄 Seus chamados financeiros:*\n\n"
+    mensagem = "*📄 Seus chamados de serviços:*\n\n"
     for ch in chamados:
         mensagem += f"• *{ch.tipo_ticket}* - {ch.empreendimento_unidade} (Status: `{ch.status}`)\n"
 
@@ -178,35 +175,35 @@ def handle_meus_chamados(ack, body, client):
         text=mensagem
     )
 
-@app.command("/exportar-os-financeiro")
-def handle_exportar_command_financeiro(ack, body, client, logger):
+# 📌 Exportar chamados
+@app.command("/exportar-os-servicos")
+def handle_exportar_command_servicos(ack, body, client, logger):
     ack()
 
     try:
-        from services import montar_blocos_exportacao
-        blocks = montar_blocos_exportacao()
+        blocks = montar_blocos_exportacao_servicos()
 
         client.views_open(
             trigger_id=body["trigger_id"],
             view={
                 "type": "modal",
-                "callback_id": "escolher_exportacao_financeiro",
-                "title": {"type": "plain_text", "text": "Exportar OS Financeiro"},
+                "callback_id": "escolher_exportacao_servicos",
+                "title": {"type": "plain_text", "text": "Exportar OS - Serviços"},
                 "submit": {"type": "plain_text", "text": "Exportar"},
                 "private_metadata": body["user_id"],
                 "blocks": blocks
             }
         )
     except Exception as e:
-        logger.error(f"❌ Erro ao abrir modal de exportação financeira: {e}")
+        logger.error(f"❌ Erro ao abrir modal de exportação serviços: {e}")
         client.chat_postEphemeral(
             channel=body.get("channel_id"),
             user=body["user_id"],
             text="❌ Erro ao abrir modal de exportação. Tente novamente."
         )
 
-@app.view("escolher_exportacao_financeiro")
-def exportar_chamados_financeiro_handler(ack, body, view, client):
+@app.view("escolher_exportacao_servicos")
+def exportar_chamados_servicos_handler(ack, body, view, client):
     ack()
     user_id = body["user"]["id"]
     valores = view["state"]["values"]
@@ -215,23 +212,21 @@ def exportar_chamados_financeiro_handler(ack, body, view, client):
     data_inicio = valores["data_inicio"]["value"]["selected_date"]
     data_fim = valores["data_fim"]["value"]["selected_date"]
 
-    from services import exportar_chamados_financeiro
-
     data_inicio = datetime.strptime(data_inicio, "%Y-%m-%d") if data_inicio else None
     data_fim = datetime.strptime(data_fim, "%Y-%m-%d") if data_fim else None
 
-    arquivos = exportar_chamados_financeiro(data_inicio, data_fim, tipo=tipo)
+    arquivos = exportar_chamados_servicos(data_inicio, data_fim, tipo=tipo)
 
     response = client.conversations_open(users=user_id)
     channel_id = response["channel"]["id"]
 
     client.files_upload_v2(
         channel=channel_id,
-        initial_comment="📎 Exportação de chamados financeiros",
+        initial_comment="📎 Exportação de chamados de serviços",
         file=arquivos[tipo][1],
         filename=arquivos[tipo][0],
-        title=f"chamados-financeiro.{tipo}"
-)
+        title=f"chamados-servicos.{tipo}"
+    )
 
 # 🚀 Inicializar o app
 if __name__ == "__main__":
