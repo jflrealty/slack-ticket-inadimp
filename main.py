@@ -122,12 +122,7 @@ def handle_capturar(ack, body, client):
 @app.action("finalizar_chamado")
 def handle_finalizar(ack, body, client):
     ack()
-    user = body["user"]["id"]
-    client.chat_postEphemeral(
-        channel=body["channel"]["id"],
-        user=user,
-        text="✅ Chamado finalizado com sucesso!"
-    )
+    finalizar_chamado(client, body)
 
 # 📌 Listar chamados do usuário
 @app.command("/minhas-os-servicos")
