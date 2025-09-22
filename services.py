@@ -120,6 +120,70 @@ def formatar_mensagem_chamado_servicos(data, user_id):
         f"*Solicitante:* {formatar_mencao(user_id)}"
     )
 
+# 🔄 Capturar chamado
+def capturar_chamado(client, body):
+    db = SessionLocal()
+    try:
+        user_id = body["user"]["id"]
+        canal_id = body["channel"]["id"]
+        ts = body["message"]["ts"]
+
+        chamado = db.query(OrdemServicoServicos).filter_by(thread_ts=ts).first()
+        if chamado:
+            chamado.status = "em atendimento"
+            chamado.responsavel = user_id
+            chamado.atualizado_em = datetime.utcnow()
+            db.commit()
+
+            # Atualiza mensagem no Slack
+            client.chat_update(
+                channel=canal_id,
+                ts=ts,
+                text=f"🔄 Chamado capturado por <@{user_id}>",
+                blocks=[
+                    {
+                        "type": "section",
+                        "text": {"type": "mrkdwn", "text": f"🔄 Chamado capturado por <@{user_id}>"}
+                    },
+                    {
+                        "type": "actions",
+                        "elements": [
+                            {"type": "button", "text": {"type": "plain_text", "text": "✅ Encerrar"}, "action_id": "finalizar_chamado"}
+                        ]
+                    }
+                ]
+            )
+    except Exception as e:
+        print("❌ Erro ao capturar chamado:", e)
+        db.rollback()
+    finally:
+        db.close()
+
+# ✅ Finalizar chamado
+def finalizar_chamado(client, body):
+    db = SessionLocal()
+    try:
+        user_id = body["user"]["id"]
+        canal_id = body["channel"]["id"]
+        ts = body["message"]["ts"]
+
+        chamado = db.query(OrdemServicoServicos).filter_by(thread_ts=ts).first()
+        if chamado:
+            chamado.status = "encerrado"
+            chamado.atualizado_em = datetime.utcnow()
+            db.commit()
+
+            client.chat_update(
+                channel=canal_id,
+                ts=ts,
+                text=f"✅ Chamado finalizado por <@{user_id}>"
+            )
+    except Exception as e:
+        print("❌ Erro ao finalizar chamado:", e)
+        db.rollback()
+    finally:
+        db.close()
+
 # 📋 Listar chamados por usuário
 def listar_chamados_por_usuario_servicos(user_id):
     db = SessionLocal()
