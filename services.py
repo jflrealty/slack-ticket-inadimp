@@ -70,8 +70,12 @@ def montar_blocos_modal_servicos():
                 "action_id": "value",
                 "placeholder": {"type": "plain_text", "text": "Escolha o responsável"},
                 "options": [
-                    {"text": {"type": "plain_text", "text": "Luciana Galvão"}, "value": "U06TAJU7C95"},
-                    {"text": {"type": "plain_text", "text": "Caroline Garcia"}, "value": "U08DRE18RR7"}
+                    {"text": {"type": "plain_text", "text": get_nome_slack(uid)}, "value": uid}
+                    for uid in [
+                        "U07DN49NT6V", "U082F92585P", "U06U8AG164R", "U085ME3BYFP", "U08SMM12TM0",
+                        "U06UKKKNJTG", "U07S6RFBGE6", "U092WBQKE11", "U08T7A8RWH4", "U083KH7R0AY",
+                        "U06TVGUV119", "U06TVLDAG9Y", "U06U8AF70M7", "U06TY4N7JKE", "U06TVLDE7AN"
+                    ]
                 ]
             },
             "label": {"type": "plain_text", "text": "Responsável"}
