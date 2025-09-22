@@ -52,7 +52,7 @@ def handle_chamado_servicos_command(ack, body, client, logger):
 def handle_modal_submission_servicos(ack, body, view, client):
     ack()
     user = body["user"]["id"]
-    canal_id = os.getenv("SLACK_CANAL_ID_SERVICOS", "C09GMTQF6EQ")  
+    canal_id = os.getenv("SLACK_CANAL_ID_SERVICOS", "C09GMTQF6EQ")
     valores = view["state"]["values"]
 
     def pegar_valor(campo):
@@ -70,26 +70,38 @@ def handle_modal_submission_servicos(ack, body, view, client):
         "solicitante": user
     }
 
+    # 🔥 Mensagem única no canal com detalhes + botões
     response = client.chat_postMessage(
-    channel=canal_id,
-    text=f"🧾 (*{data['locatario']}*) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*",
-    blocks=[
-        {
-            "type": "section",
-            "text": {"type": "mrkdwn", "text": formatar_mensagem_chamado_servicos(data, user)}
-        },
-        {
-            "type": "actions",
-            "elements": [
-                {"type": "button", "text": {"type": "plain_text", "text": "🔄 Capturar"}, "action_id": "capturar_chamado"},
-                {"type": "button", "text": {"type": "plain_text", "text": "✅ Encerrar"}, "action_id": "finalizar_chamado"}
-            ]
-        }
-    ]
-)
+        channel=canal_id,
+        text=f"🧾 Novo chamado aberto",
+        blocks=[
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": formatar_mensagem_chamado_servicos(data, user)}
+            },
+            {
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {"type": "plain_text", "text": "🔄 Capturar"},
+                        "style": "primary",
+                        "action_id": "capturar_chamado"
+                    },
+                    {
+                        "type": "button",
+                        "text": {"type": "plain_text", "text": "✅ Encerrar"},
+                        "style": "danger",
+                        "action_id": "finalizar_chamado"
+                    }
+                ]
+            }
+        ]
+    )
 
-thread_ts = response["ts"]
-criar_ordem_servico_servicos(data, thread_ts, canal_id)
+    # 📌 Salva no banco o TS da mensagem principal
+    thread_ts = response["ts"]
+    criar_ordem_servico_servicos(data, thread_ts, canal_id)
 
     client.chat_postMessage(
         channel=canal_id,
