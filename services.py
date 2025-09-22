@@ -88,7 +88,7 @@ def montar_blocos_modal_servicos():
                 ]
             },
             "label": {"type": "plain_text", "text": "Responsável"}
-}
+        }
 # 💾 Criar OS
 def criar_ordem_servico_servicos(data, thread_ts=None, canal_id=None):
     db = SessionLocal()
