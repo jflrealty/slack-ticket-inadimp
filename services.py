@@ -135,37 +135,26 @@ def formatar_mensagem_chamado_servicos(data, user_id):
 def capturar_chamado(client, body):
     db = SessionLocal()
     try:
-        user_id = body["user"]["id"]
-        canal_id = body["channel"]["id"]
         ts = body["message"]["ts"]
+        canal_id = body["channel"]["id"]
+        user_id = body["user"]["id"]
 
-        chamado = db.query(OrdemServicoServicos).filter_by(thread_ts=ts).first()
+        chamado = db.query(OrdemServicoServicos).filter_by(thread_ts=ts, canal_id=canal_id).first()
         if chamado:
             chamado.status = "em atendimento"
-            chamado.responsavel = user_id
             chamado.atualizado_em = datetime.utcnow()
+            # opcional: adicionar campo capturado_por no model
+            # chamado.capturado_por = user_id
             db.commit()
 
-            # Atualiza mensagem no Slack
-            client.chat_update(
-                channel=canal_id,
-                ts=ts,
-                text=f"🔄 Chamado capturado por <@{user_id}>",
-                blocks=[
-                    {
-                        "type": "section",
-                        "text": {"type": "mrkdwn", "text": f"🔄 Chamado capturado por <@{user_id}>"}
-                    },
-                    {
-                        "type": "actions",
-                        "elements": [
-                            {"type": "button", "text": {"type": "plain_text", "text": "✅ Encerrar"}, "action_id": "finalizar_chamado"}
-                        ]
-                    }
-                ]
-            )
+        client.chat_postMessage(
+            channel=canal_id,
+            thread_ts=ts,
+            text=f"🔄 Chamado capturado por <@{user_id}>"
+        )
+
     except Exception as e:
-        print("❌ Erro ao capturar chamado:", e)
+        print(f"❌ Erro ao capturar chamado: {e}")
         db.rollback()
     finally:
         db.close()
