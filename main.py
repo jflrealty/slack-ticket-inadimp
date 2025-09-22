@@ -12,6 +12,8 @@ from services import (
     listar_chamados_por_usuario_servicos,
     montar_blocos_exportacao_servicos,
     exportar_chamados_servicos
+    capturar_chamado,
+    finalizar_chamado
 )
 
 # Inicializa o app com tokens do Railway (env vars)
