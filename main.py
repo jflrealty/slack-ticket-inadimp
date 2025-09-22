@@ -71,28 +71,25 @@ def handle_modal_submission_servicos(ack, body, view, client):
     }
 
     response = client.chat_postMessage(
-        channel=canal_id,
-        text=f"🧾 ({data['locatario']}) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*",
-        blocks=[
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"🧾 (*{data['locatario']}*) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*"
-                }
-            },
-            {
-                "type": "actions",
-                "elements": [
-                    {"type": "button", "text": {"type": "plain_text", "text": "🔄 Capturar"}, "action_id": "capturar_chamado"},
-                    {"type": "button", "text": {"type": "plain_text", "text": "✅ Encerrar"}, "action_id": "finalizar_chamado"}
-                ]
-            }
-        ]
-    )
+    channel=canal_id,
+    text=f"🧾 (*{data['locatario']}*) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*",
+    blocks=[
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": formatar_mensagem_chamado_servicos(data, user)}
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {"type": "button", "text": {"type": "plain_text", "text": "🔄 Capturar"}, "action_id": "capturar_chamado"},
+                {"type": "button", "text": {"type": "plain_text", "text": "✅ Encerrar"}, "action_id": "finalizar_chamado"}
+            ]
+        }
+    ]
+)
 
-    thread_ts = response["ts"]
-    criar_ordem_servico_servicos(data, thread_ts, canal_id)
+thread_ts = response["ts"]
+criar_ordem_servico_servicos(data, thread_ts, canal_id)
 
     client.chat_postMessage(
         channel=canal_id,
