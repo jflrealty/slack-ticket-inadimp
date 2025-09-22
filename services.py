@@ -46,7 +46,7 @@ def montar_blocos_modal_servicos():
                 "action_id": "value",
                 "placeholder": {"type": "plain_text", "text": "Escolha"},
                 "options": [
-                    {"text": {"type": "plain_text", "text": "Cancelamento de Serviços"}, "value": "Cancelamento de Serviços"},
+                    {"text": {"type": "plain_text", "text": "Suspensão de Serviços"}, "value": "Suspensão de Serviços"},
                     {"text": {"type": "plain_text", "text": "Restabelecimento de Serviços"}, "value": "Restabelecimento de Serviços"}
                 ]
             },
