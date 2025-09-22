@@ -112,10 +112,7 @@ def formatar_mensagem_chamado_servicos(data, user_id):
     def formatar_mencao(slack_id):
         if not slack_id:
             return "–"
-        if slack_id.startswith("U"):
-            return f"<@{slack_id}>"
-        return slack_id
-
+        return f"<@{slack_id}>"
     return (
         f"*Tipo:* {limpar(data.get('tipo_ticket'))}\n"
         f"*Locatário:* {limpar(data.get('locatario'))}\n"
