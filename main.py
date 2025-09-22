@@ -70,7 +70,23 @@ def handle_modal_submission_servicos(ack, body, view, client):
 
     response = client.chat_postMessage(
         channel=canal_id,
-        text=f"🧾 ({data['locatario']}) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*"
+        text=f"🧾 ({data['locatario']}) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*",
+        blocks=[
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"🧾 (*{data['locatario']}*) - {data['empreendimento_unidade']} <@{user}>: *{data['tipo_ticket']}*"
+                }
+            },
+            {
+                "type": "actions",
+                "elements": [
+                    {"type": "button", "text": {"type": "plain_text", "text": "🔄 Capturar"}, "action_id": "capturar_chamado"},
+                    {"type": "button", "text": {"type": "plain_text", "text": "✅ Encerrar"}, "action_id": "finalizar_chamado"}
+                ]
+            }
+        ]
     )
 
     thread_ts = response["ts"]
@@ -80,6 +96,26 @@ def handle_modal_submission_servicos(ack, body, view, client):
         channel=canal_id,
         thread_ts=thread_ts,
         text=formatar_mensagem_chamado_servicos(data, user)
+    )
+
+@app.action("capturar_chamado")
+def handle_capturar(ack, body, client):
+    ack()
+    user = body["user"]["id"]
+    client.chat_postEphemeral(
+        channel=body["channel"]["id"],
+        user=user,
+        text="🔄 Função de *capturar chamado* ainda não implementada."
+    )
+
+@app.action("finalizar_chamado")
+def handle_finalizar(ack, body, client):
+    ack()
+    user = body["user"]["id"]
+    client.chat_postEphemeral(
+        channel=body["channel"]["id"],
+        user=user,
+        text="✅ Função de *finalizar chamado* ainda não implementada."
     )
 
 # 📌 Listar chamados do usuário
