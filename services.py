@@ -46,7 +46,7 @@ def montar_blocos_modal_servicos():
                 "action_id": "value",
                 "placeholder": {"type": "plain_text", "text": "Escolha"},
                 "options": [{"text": {"type": "plain_text", "text": opt}, "value": opt}
-                            for opt in ["Manutenção", "Limpeza", "Outros"]]
+                            for opt in ["Cancelamento de Serviços", "Restabelecimento de Serviços"]]
             },
             "label": {"type": "plain_text", "text": "Tipo de Ticket"}
         },
