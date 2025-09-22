@@ -174,23 +174,23 @@ def capturar_chamado(client, body):
 def finalizar_chamado(client, body):
     db = SessionLocal()
     try:
-        user_id = body["user"]["id"]
-        canal_id = body["channel"]["id"]
         ts = body["message"]["ts"]
+        canal_id = body["channel"]["id"]
 
-        chamado = db.query(OrdemServicoServicos).filter_by(thread_ts=ts).first()
+        chamado = db.query(OrdemServicoServicos).filter_by(thread_ts=ts, canal_id=canal_id).first()
         if chamado:
-            chamado.status = "encerrado"
+            chamado.status = "fechado"
             chamado.atualizado_em = datetime.utcnow()
             db.commit()
 
-            client.chat_update(
-                channel=canal_id,
-                ts=ts,
-                text=f"✅ Chamado finalizado por <@{user_id}>"
-            )
+        client.chat_postMessage(
+            channel=canal_id,
+            thread_ts=ts,
+            text="✅ Chamado finalizado com sucesso!"
+        )
+
     except Exception as e:
-        print("❌ Erro ao finalizar chamado:", e)
+        print(f"❌ Erro ao finalizar chamado: {e}")
         db.rollback()
     finally:
         db.close()
