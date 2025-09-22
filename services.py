@@ -70,7 +70,7 @@ def montar_blocos_modal_servicos():
                 "action_id": "value",
                 "placeholder": {"type": "plain_text", "text": "Escolha o responsável"},
                 "options": [
-                    {"text": {"type": "plain_text", "text": get_nome_slack(uid)}, "value": uid}
+                    {"text": {"type": "plain_text", "text": get_nome_slack(uid)}, "value": get_nome_slack(uid)}
                     for uid in [
                         "U07DN49NT6V", "U082F92585P", "U06U8AG164R", "U085ME3BYFP", "U08SMM12TM0",
                         "U06UKKKNJTG", "U07S6RFBGE6", "U092WBQKE11", "U08T7A8RWH4", "U083KH7R0AY",
