@@ -72,10 +72,22 @@ def montar_blocos_modal_servicos():
                 "options": [
                     {"text": {"type": "plain_text", "text": get_nome_slack(uid)}, "value": get_nome_slack(uid)}
                     for uid in [
-                        "U07DN49NT6V", "U082F92585P", "U06U8AG164R", "U085ME3BYFP", "U08SMM12TM0",
-                        "U06UKKKNJTG", "U07S6RFBGE6", "U092WBQKE11", "U08T7A8RWH4", "U083KH7R0AY",
-                        "U06TVGUV119", "U06TVLDAG9Y", "U06U8AF70M7", "U06TY4N7JKE", "U06TVLDE7AN"
-                    ]
+                        {"text": {"type": "plain_text", "text": "Alef Nunes"}, "value": "U07DN49NT6V"},
+                        {"text": {"type": "plain_text", "text": "Braullio Reis"}, "value": "U082F92585P"},
+                        {"text": {"type": "plain_text", "text": "Gabriela Casão"}, "value": "U06U8AG164R"},
+                        {"text": {"type": "plain_text", "text": "Jelifer Neves"}, "value": "U085ME3BYFP"},
+                        {"text": {"type": "plain_text", "text": "Juliana"}, "value": "U08SMM12TM0"},
+                        {"text": {"type": "plain_text", "text": "Marina Macena"}, "value": "U06UKKKNJTG"},
+                        {"text": {"type": "plain_text", "text": "Marta Cabral"}, "value": "U07S6RFBGE6"},
+                        {"text": {"type": "plain_text", "text": "Rafaela Assis"}, "value": "U092WBQKE11"},
+                        {"text": {"type": "plain_text", "text": "Rafaela Oh"}, "value": "U08T7A8RWH4"},
+                        {"text": {"type": "plain_text", "text": "Recepção AVNU"}, "value": "U083KH7R0AY"},
+                        {"text": {"type": "plain_text", "text": "Recepcao Jml747"}, "value": "U06TVGUV119"},
+                        {"text": {"type": "plain_text", "text": "Recepção Residencial - JFL125"}, "value": "U06TVLDAG9Y"},
+                        {"text": {"type": "plain_text", "text": "Recepcao Vhouse"}, "value": "U06U8AF70M7"},
+                        {"text": {"type": "plain_text", "text": "Recepcao Vo699"}, "value": "U06TY4N7JKE"},
+                        {"text": {"type": "plain_text", "text": "Thaiane Leoni"}, "value": "U06TVLDE7AN"}
+                        
                 ]
             },
             "label": {"type": "plain_text", "text": "Responsável"}
