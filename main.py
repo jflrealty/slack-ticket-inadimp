@@ -52,7 +52,7 @@ def handle_chamado_servicos_command(ack, body, client, logger):
 def handle_modal_submission_servicos(ack, body, view, client):
     ack()
     user = body["user"]["id"]
-    canal_id = os.getenv("SLACK_CANAL_ID_SERVICOS", "CXXXXXXX")  # ⚠️ Trocar pelo canal real
+    canal_id = os.getenv("SLACK_CANAL_ID_SERVICOS", "C09GMTQF6EQ")  
     valores = view["state"]["values"]
 
     def pegar_valor(campo):
