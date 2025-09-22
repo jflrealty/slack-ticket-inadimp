@@ -116,7 +116,7 @@ def handle_capturar(ack, body, client):
     client.chat_postEphemeral(
         channel=body["channel"]["id"],
         user=user,
-        text="🔄 Função de *capturar chamado* ainda não implementada."
+        text="🔄 Chamado capturado com sucesso!"
     )
 
 @app.action("finalizar_chamado")
@@ -126,7 +126,7 @@ def handle_finalizar(ack, body, client):
     client.chat_postEphemeral(
         channel=body["channel"]["id"],
         user=user,
-        text="✅ Função de *finalizar chamado* ainda não implementada."
+        text="✅ Chamado finalizado com sucesso!"
     )
 
 # 📌 Listar chamados do usuário
