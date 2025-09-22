@@ -45,8 +45,10 @@ def montar_blocos_modal_servicos():
                 "type": "static_select",
                 "action_id": "value",
                 "placeholder": {"type": "plain_text", "text": "Escolha"},
-                "options": [{"text": {"type": "plain_text", "text": opt}, "value": opt}
-                            for opt in ["Cancelamento de Serviços", "Restabelecimento de Serviços"]]
+                "options": [
+                    {"text": {"type": "plain_text", "text": "Cancelamento de Serviços"}, "value": "Cancelamento de Serviços"},
+                    {"text": {"type": "plain_text", "text": "Restabelecimento de Serviços"}, "value": "Restabelecimento de Serviços"}
+                ]
             },
             "label": {"type": "plain_text", "text": "Tipo de Ticket"}
         },
@@ -89,6 +91,7 @@ def montar_blocos_modal_servicos():
             },
             "label": {"type": "plain_text", "text": "Responsável"}
         }
+    ]
 # 💾 Criar OS
 def criar_ordem_servico_servicos(data, thread_ts=None, canal_id=None):
     db = SessionLocal()
